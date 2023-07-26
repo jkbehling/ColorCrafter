@@ -33,6 +33,11 @@ body {
     background-color: var(--body-background);
 }
 
+/* Target the favicon SVG using its selector */
+#favicon-svg {
+    fill: red;
+}
+
 
 .game-title {
     text-align: center;
@@ -69,7 +74,7 @@ body {
     gap: 2rem;
     justify-content: center;
     align-items: center;
-    width: 750px;
+    max-width: 750px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -87,6 +92,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
 }
 
 .middle-container {
@@ -97,7 +103,13 @@ body {
     gap: 20px;
     width: 600px;
     height: 80px;
+    transition: height 3s;
     /* transition: all 3s; */
+}
+
+.correct-answer-text {
+    color: var(--text-color);
+    font-size: 25px;
 }
 
 #selected-colors {
@@ -142,6 +154,7 @@ body {
     height: 5em;
     width: 80px;
     opacity: 0;
+    pointer-events: none;
     transition: opacity var(--transition-time);
     fill: var(--text-color);
 }
@@ -159,16 +172,20 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
     text-align: center;
     width: var(--cube-width);
     height: var(--cube-height);
     border-radius: var(--cube-border-radius);
-    transition: all var(--transition-time);
+    transition: box-shadow var(--transition-time);
 }
 .given-color:hover {
     cursor: pointer;
     /* width: var(--cube-width-hover);
     height: var(--cube-height-hover); */
+}
+.given-color:active {
+    box-shadow: none;
 }
 .too-many {
     padding: 5px;
@@ -215,6 +232,36 @@ body {
     fill: var(--text-color);
 }
 
+.continue-btn {
+    height: var(--cube-height);
+    width: calc(var(--cube-width) + 20px);
+    font-size: 25px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    border-radius: 15px;
+    background-color: var(--target-color);
+    border: none;
+}
+.continue-btn:hover {
+    cursor: pointer;
+}
+.continue-btn span {
+    padding: 10px;
+    border-radius: 15px;
+    background-color: var(--body-background);
+    color: var(--text-color);
+}
+
+.next-color-timer {
+    background-color: var(--body-background);
+    height: 35px;
+    color: var(--text-color);
+    padding: 10px;
+    text-align: center;
+    border-radius: 10px;
+    opacity: 0;
+}
+
 /* The Modal (background) */
 .modal {
     display: none;
@@ -241,18 +288,23 @@ body {
 
 /* Modal Content */
 .modal-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
     background-color: var(--body-background);
     color: var(--text-color);
     margin: auto;
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
+    font-size: 25px;
 }
 
 /* The Close Button */
 .close {
     color: #aaaaaa;
-    float: right;
+    margin-left: auto;
     font-size: 28px;
     font-weight: bold;
 }
@@ -331,7 +383,6 @@ input:checked+.slider:before {
     text-align: center;
     color: var(--text-color);
     font-size: 50px;
-    opacity: 0;
 }
 
 .you-win {
@@ -402,9 +453,6 @@ input:checked+.slider:before {
         flex: 2;
         width: 100%;
     }
-    #mix-selected-colors > svg {
-        
-    }
 
     #remove-color {
         height: 100%;
@@ -423,6 +471,27 @@ input:checked+.slider:before {
     }
     #given-colors {
         gap: 10px;
+    }
+
+    .modal-content {
+        font-size: 20px;
+    }
+
+    .continue-btn {
+        height: var(--cube-height-mobile);
+        width: calc(var(--cube-width-mobile) + 20px);
+    }
+    .continue-btn span {
+        font-size: 20px;
+        padding: 5px;
+    }
+    .correct-answer-text {
+        color: var(--text-color);
+        font-size: 20px;
+    }
+    .next-color-timer {
+        padding: 2px;
+        font-size: 14px;
     }
 
   }
@@ -463,15 +532,25 @@ input:checked+.slider:before {
     #mix-selected-colors {
         height: 50px;
     }
-    #mix-selected-colors > svg {
-        height: 50px;
-    }
 
     #remove-color {
         height: 50px;
     }
     .result-arrow svg {
         height: 30px;
+    }
+
+    .continue-btn {
+        height: var(--cube-height-mobile);
+        width: calc(var(--cube-width-mobile) + 20px);
+    }
+    .continue-btn span {
+        font-size: 20px;
+        padding: 5px;
+    }
+    .next-color-timer {
+        padding: 2px;
+        font-size: 14px;
     }
   }
   

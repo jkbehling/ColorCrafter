@@ -2,7 +2,7 @@ const root = document.documentElement;
 let middleContainer = $(".middle-container");
 const removeColorElement = document.getElementById("remove-color");
 const mixSelectedColorsElement = document.getElementById("mix-selected-colors");
-const historyItem = document.getElementById("history-container");
+const historyContainer = document.getElementById("history-container");
 const history1 = document.getElementById("history1");
 const history2 = document.getElementById("history2");
 const history3 = document.getElementById("history3");
@@ -10,19 +10,20 @@ const history4 = document.getElementById("history4");
 const history5 = document.getElementById("history5");
 let guessNum = 1;
 let gameOver = false;
+let youWin = false;
 let darkMode = true;
 
-// // Get the full date and make it an int that will be used to create a random color.
-// const currentDate = new Date();
-// const day = String(currentDate.getDate()).padStart(2, '0');
-// const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-// const year = currentDate.getFullYear();
-// // Format the date as "ddMMYYYY"
-// const seed = parseInt(`1${day}${month}${year}`);
-// console.log("Seed:" + seed);
+// Get the full date and make it an int that will be used to create a random color.
+const currentDate = new Date();
+const day = String(currentDate.getDate()).padStart(2, '0');
+const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+const year = currentDate.getFullYear();
+// Format the date as "ddMMYYYY"
+const seed = parseInt(`1${day}${month}${year}`);
+//console.log("Seed:" + seed);
 
 
-let seed = 131072023;
+//let seed = 133072023;
 
 // Create a list of 9 random numbers (between 0 and 255) to create the colors
 
@@ -105,22 +106,28 @@ let randomNumbersForFinal = generateRandomNumbers((seed*2), 5);
 
 for (let i = 0; i < randomNumbersForFinal.length; i++) {
   finalColorList.push(colorList[(Math.floor(randomNumbersForFinal[i]*3))])
-  const colorForLog = `rgb(${finalColorList[i].r}, ${finalColorList[i].g}, ${finalColorList[i].b})`
-  const logStyle = "background-color: " + colorForLog + "; padding: 5px;";
-  console.log("%c" + "rgb(" + finalColorList[i].r + ", " + finalColorList[i].g + ", " + finalColorList[i].b + ")", logStyle);
+  // Uncomment these lines to show the correct answer in the console
+  // const colorForLog = `rgb(${finalColorList[i].r}, ${finalColorList[i].g}, ${finalColorList[i].b})`
+  // const logStyle = "background-color: " + colorForLog + "; padding: 5px;";
+  // console.log("%c" + "rgb(" + finalColorList[i].r + ", " + finalColorList[i].g + ", " + finalColorList[i].b + ")", logStyle);
 }
 
-console.log(finalColorList);
+//console.log(finalColorList);
 
 // Mix the colors to create the target color
 const targetColor = mixColors(finalColorList);
+const targetColorString = `rgb(${targetColor.r}, ${targetColor.g}, ${targetColor.b})`
 // console.log(targetColor);
 
-root.style.setProperty("--target-color", `rgb(${targetColor.r}, ${targetColor.g}, ${targetColor.b})`);
+root.style.setProperty("--target-color", targetColorString);
 root.style.setProperty("--color1", `rgb(${colorList[0].r}, ${colorList[0].g}, ${colorList[0].b})`);
 root.style.setProperty("--color2", `rgb(${colorList[1].r}, ${colorList[1].g}, ${colorList[1].b})`);
 root.style.setProperty("--color3", `rgb(${colorList[2].r}, ${colorList[2].g}, ${colorList[2].b})`);
 
+
+// Set the favicon to be the target color
+favicon = $(`<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;charset=utf8,%3Csvg fill='${targetColorString}' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M512 256c0 .9 0 1.8 0 2.7c-.4 36.5-33.6 61.3-70.1 61.3H344c-26.5 0-48 21.5-48 48c0 3.4 .4 6.7 1 9.9c2.1 10.2 6.5 20 10.8 29.9c6.1 13.8 12.1 27.5 12.1 42c0 31.8-21.6 60.7-53.4 62c-3.5 .1-7 .2-10.6 .2C114.6 512 0 397.4 0 256S114.6 0 256 0S512 114.6 512 256zM128 288a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm0-96a32 32 0 1 0 0-64 32 32 0 1 0 0 64zM288 96a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm96 96a32 32 0 1 0 0-64 32 32 0 1 0 0 64z'/%3E%3C/svg%3E">`);
+favicon.appendTo(document.head);
 
 // Function to calculate the average of RGB components
 function mixColors(colors) {
@@ -142,6 +149,64 @@ function mixColors(colors) {
 
   return { r: avgR, g: avgG, b: avgB };
   //return `rgb(${avgR}, ${avgG}, ${avgB})`;
+}
+
+// Function to format time in HH:mm:ss format
+function formatTime(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  const formattedHours = String(hours).padStart(2, '0');
+  const formattedMinutes = String(minutes).padStart(2, '0');
+  const formattedSeconds = String(secs).padStart(2, '0');
+
+  return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+}
+// Start countdown till next color function
+function startCountdown(seconds) {
+  $("#target-color").html('<div class="next-color-timer"><div>Next color</div><div id="timer"></div></div>')
+  $(".next-color-timer:first-child").animate({"opacity": "1"}, 500);
+  let remainingTime = seconds;
+
+  // Update the timer display every second
+  const intervalId = setInterval(() => {
+    document.getElementById('timer').textContent = formatTime(remainingTime);
+
+    if (remainingTime === 0) {
+      clearInterval(intervalId);
+      //Start new game
+      setTimeout(() => {location.reload()}, 2000);
+    } else {
+      remainingTime--;
+    }
+  }, 1000);
+}
+// Function to call when the user wins
+function youWinFunction() {
+  youWin = true;
+  let winSpan = $('<span class="you-win">You Win!</span>');
+  $(middleContainer).html(winSpan);
+  winSpan.animate({ opacity: 1 }, 500);
+  $("#given-colors").css("pointer-events", "none");
+  startCountdown(getTimeUntilMidnightInSeconds());
+}
+
+function gameOverFunction() {
+  gameOver = true;
+  gameOverText = $('<div class="game-over">Game Over</div>')
+  $(middleContainer).css({"flex-direction": "column", "height": "fit-content", "opacity": "0"});
+  $(middleContainer).html(gameOverText);
+  $("#given-colors").css("pointer-events", "none");
+  let correctAnswer = '<div class="correct-answer-text"><span>Correct Answer:</span></div><div class="history-item" style="opacity: 1">'
+  for (let i = 0; i < finalColorList.length; i++) {
+    correctAnswer += `<div class="selected-color" style="background-color: rgb(${finalColorList[i].r},${finalColorList[i].g},${finalColorList[i].b});"></div>`
+  }
+  correctAnswer += "</div>"
+  correctAnswerElement = $(correctAnswer);
+  $(middleContainer).append(correctAnswerElement);
+  $(middleContainer).animate({opacity: 1}, 500);
+  startCountdown(getTimeUntilMidnightInSeconds());
 }
 
 function mixSelectedColors() {
@@ -213,23 +278,20 @@ function mixSelectedColors() {
   
               //Check to see if the user wins
               if (colorResult.r==targetColor.r & colorResult.g==targetColor.g & colorResult.b==targetColor.b) {
-                let winSpan = $('<span class="you-win">You Win!</span>');
-                $("#selected-colors").append(winSpan);
-                winSpan.animate({ opacity: 1 }, 500);
+                youWinFunction();
+                setGameState();
                 return;
-  
               }
           
               // Increment the guess number
               guessNum += 1;
+              // Use cookies to preserve the game state if the user refreshes
+              setGameState();
           
               // Check to see if it's game over
               if (guessNum == 6) {
-                  gameOver = true;
-                  gameOverText = $('<div class="game-over">Game Over</div>')
-                  $(middleContainer).html(gameOverText);
-                  $(gameOverText).animate({opacity: 1}, 500);
-                  //selectedColorsContainer.innerHTML = ;
+                  gameOverFunction();
+                  setGameState();
                   return;
               }
             })
@@ -269,6 +331,7 @@ function selectColor(element) {
     if (gameOver) {
         return;
     }
+    $(element).animate({"box-shadow": "0, 0, 0"}, 500);
     let selectedColorsCount = document.getElementById("selected-colors").childElementCount;
     if (selectedColorsCount >= 5) {
       if (element.childElementCount == 0) {
@@ -284,10 +347,11 @@ function selectColor(element) {
     }
     if (selectedColorsCount == 4) {
         mixSelectedColorsElement.style.opacity = 100;
+        $(mixSelectedColorsElement).css({ "opacity": "100", "pointer-events": "all"})
     }
-    let removeColor = document.getElementById("remove-color");
-    if (window.getComputedStyle(removeColor).opacity == 0) {
-        removeColor.style.opacity = 100;
+
+    if (window.getComputedStyle(removeColorElement).opacity == 0) {
+        $(removeColorElement).css({ "opacity": "1", "pointer-events": "all" });
     }
 
     let selectedColor = document.createElement("div");
@@ -308,11 +372,11 @@ function removeColor() {
         selectedColors[selectedColors.length - 1].remove();
     }
     if (selectedColors.length == 0) {
-        removeColorElement.style.opacity = 0;
+        $(removeColorElement).css({ "opacity": "0", "pointer-events": "none" });
     }
     if (mixSelectedColorsElement.style.opacity != 0) {
         // This can always be removed because we only need it at 5
-        mixSelectedColorsElement.style.opacity = 0; 
+        $(mixSelectedColorsElement).css({ "opacity": "0", "pointer-events": "none" });
     }
 }
 
@@ -327,7 +391,189 @@ function toggleDarkMode() {
     root.style.setProperty("--body-background", "#202124");
     darkMode = true;
   }
+  setGameState();
 }
+
+// Function to check the user's preferred theme (light or dark)
+const prefersDarkTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+if (prefersDarkTheme) {
+  // User prefers dark theme
+  
+} else {
+  // User prefers light theme
+  toggleDarkMode();
+}
+
+
+// Check to see if the user has already played today using cookies
+
+// Function to set a cookie with a specified name, value, and expiration date
+function setCookie(name, value, seconds) {
+  const date = new Date();
+  date.setTime(date.getTime() + (seconds));
+  const expires = "expires=" + date.toUTCString();
+  document.cookie = name + "=" + value + ";" + expires + ";path=/";
+}
+
+// Function to get the time remaining until midnight in seconds
+function getTimeUntilMidnightInSeconds() {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(24, 0, 0, 0); // Set time to midnight
+  const timeUntilMidnight = midnight.getTime() - now.getTime();
+  return Math.floor(timeUntilMidnight / 1000); // Convert to seconds
+}
+
+// Function to get the value of a cookie by its name
+function getCookie(name) {
+  const cookieName = name + "=";
+  const cookieArray = document.cookie.split(';');
+  for (let i = 0; i < cookieArray.length; i++) {
+      let cookie = cookieArray[i];
+      while (cookie.charAt(0) === ' ') {
+          cookie = cookie.substring(1);
+      }
+      if (cookie.indexOf(cookieName) === 0) {
+          return cookie.substring(cookieName.length, cookie.length);
+      }
+  }
+  return "";
+}
+
+// Function to check if the user has played the game today
+function hasPlayedToday() {
+  const playedToday = getCookie("played_today");
+  return playedToday;
+}
+
+// Function to set the current state of the game
+function setGameState() {
+  let inProgress = false;
+  if (guessNum > 1) {
+    inProgress = true;
+  }
+  // If it isn't game over and the user hasn't won, then inProgress will stay true.
+  if (youWin || gameOver) {
+    inProgress = false;
+  }
+  let gameData = {
+    you_win: youWin,
+    game_over: gameOver,
+    in_progress: inProgress,
+    dark_mode: darkMode,
+    guess_num: guessNum,
+    history: [],
+  };
+
+  let historyItems = $(historyContainer).children();
+  for (let i = 0; i < historyItems.length; i++) {
+    if (historyItems[i].childElementCount == 7) {
+      let historyJson = {};
+      let resultJson = {};
+
+      for (let y = 0; y < historyItems[i].childElementCount; y++) {
+        if (y <= 4) {
+          let historyElement = historyItems[i].children[y];
+          historyJson["choice" + (y + 1)] = window.getComputedStyle(historyElement).backgroundColor;
+        }
+        if (y == 6) {
+          let resultElement = historyItems[i].children[y];
+          resultJson["resultColor"] = window.getComputedStyle(resultElement).backgroundColor;
+          let resultText = resultElement.children[0];
+          resultJson["resultPercent"] = resultText.innerHTML;
+        }
+      }
+
+      gameData.history.push({
+        history: historyJson,
+        result: resultJson,
+      });
+    }
+  }
+
+  // Convert the gameData object to a JSON string
+  const gameDataJsonString = JSON.stringify(gameData);
+
+  // Set the "game_data" cookie with the JSON string
+  document.cookie = "game_data=" + encodeURIComponent(gameDataJsonString) + "; max-age=" + getTimeUntilMidnightInSeconds();
+}
+
+// Get the game data cookie. This has all of the data we need to maintain the state of the game.
+const gameDataCookie = getCookie("game_data");
+
+if (gameDataCookie) {
+  // Parse the JSON data from the cookie
+  const gameData = JSON.parse(decodeURIComponent(gameDataCookie));
+
+  // Set dark mode
+  if (!gameData.dark_mode == darkMode) {
+    toggleDarkMode();
+  }
+  // Set the guess number
+  guessNum = gameData.guess_num;
+  // Fill in the history items
+  for (let i = 1; i <= 5; i++) {
+    let historyHtml = "";
+    // Access the history object with the index (i-1) since arrays are 0-based
+    const historyItem = gameData.history[i - 1];
+
+    if (historyItem) {
+      // Set background colors based on history data
+      for (let j = 1; j <= 5; j++) {
+        const choiceKey = "choice" + j;
+        const choiceColor = historyItem.history[choiceKey];
+        historyHtml += `<div class="selected-color" style="background-color: ${choiceColor};"></div>`;
+      }
+
+      // Add the arrow between the choices and result
+      historyHtml += '<div class="result-arrow"><svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg></div>'
+
+      // Set the result background color and result percentage text
+      const resultColor = historyItem.result.resultColor;
+      const resultPercent = historyItem.result.resultPercent;
+      historyHtml += `<div class="selected-color" style="background-color: ${resultColor}; padding: 10px;"><span class="percent-span" style="opacity: 1">${resultPercent}</span></div>`;
+
+      // Add the historyDiv to the historyContainer element
+      $("#history"+i).css({"opacity": "1"}).html(historyHtml);
+    }
+  }
+
+  // Check to see if the user won
+  if (gameData.you_win) {
+    youWinFunction();
+  }
+  // Check to see if the user lost
+  if (gameData.game_over) {
+    gameOverFunction();
+  }
+  // Check to see if the game is in progress
+  if (gameData.in_progress) {
+    // Get the second modal
+    var modal3 = document.getElementById("myModal3");
+    // Show the modal
+    modal3.style.display = "block";
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[2];
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+      modal3.style.display = "none";
+    }
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+      if (event.target == modal3) {
+        modal3.style.display = "none";
+      }
+    }
+  }
+}
+
+// else {
+//     // Do whatever you want the play button to do here.
+//     // For example, start the game, show a modal, etc.
+
+//     // Once the user has played the game, set the cookie to mark today as played.
+//     setCookie("played_today", "true", getTimeUntilMidnightInSeconds());
+// }
 
 // Get the modal
 var modal = document.getElementById("myModal");
@@ -379,6 +625,11 @@ window.onclick = function(event) {
   if (event.target == modal2) {
     modal2.style.display = "none";
   }
+}
+
+function continueGame() {
+  var modal3 = document.getElementById("myModal3");
+  modal3.style.display = "none";
 }
 
   
