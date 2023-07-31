@@ -20,10 +20,10 @@ const month = String(currentDate.getMonth() + 1).padStart(2, '0');
 const year = currentDate.getFullYear();
 // Format the date as "ddMMYYYY"
 const seed = parseInt(`1${day}${month}${year}`);
-//console.log("Seed:" + seed);
+// //console.log("Seed:" + seed);
 
 
-//let seed = 133072023;
+//let seed = 119082023;
 
 // Create a list of 9 random numbers (between 0 and 255) to create the colors
 
@@ -48,51 +48,65 @@ function generateRandomNumbers(seed, count) {
 }
 
 // Generate 9 random numbers with the seed
-let randomNumbers = generateRandomNumbers(seed, 9);
+let randomNumbers = generateRandomNumbers(seed, 12);
 
 // multiply each value in the array by 244
 for (let i = 0; i < randomNumbers.length; i++) {
   randomNumbers[i] = Math.floor(randomNumbers[i] * 244);
 }
 
+function calculateColorDifferencePercentage(rgb1, rgb2) {
+  const distance = Math.sqrt(
+    Math.pow(rgb2.r - rgb1.r, 2) +
+    Math.pow(rgb2.g - rgb1.g, 2) +
+    Math.pow(rgb2.b - rgb1.b, 2)
+  );
+
+  const maxDistance = Math.sqrt(195075); // Maximum Euclidean distance between two RGB values (255^2 + 255^2 + 255^2)
+
+  const percentageDifference = (distance / maxDistance) * 100;
+
+  return (100-percentageDifference).toFixed(0);
+} 
+
 
 // console.log(randomNumbers); //The initial set of random numbers
 
 // Split the list into three lists, so we can try to create significantly different colors
-let firstList = randomNumbers.slice(0, 3);
-let secondList = randomNumbers.slice(3, 6);
-let thirdList = randomNumbers.slice(6, 9);
+// let firstList = randomNumbers.slice(0, 3);
+// let secondList = randomNumbers.slice(3, 6);
+// let thirdList = randomNumbers.slice(6, 9);
 
 // Function to find the index of the maximum value in a list
-function findMaxIndex(arr) {
-  let maxIndex = 0;
-  for (let i = 1; i < arr.length; i++) {
-    if (arr[i] > arr[maxIndex]) {
-      maxIndex = i;
-    }
-  }
-  return maxIndex;
-}
+// function findMaxIndex(arr) {
+//   let maxIndex = 0;
+//   for (let i = 1; i < arr.length; i++) {
+//     if (arr[i] > arr[maxIndex]) {
+//       maxIndex = i;
+//     }
+//   }
+//   return maxIndex;
+// }
 
 // Step 1: Find the index of the maximum value in each list
-let firstMaxIndex = findMaxIndex(firstList);
-let secondMaxIndex = findMaxIndex(secondList);
-let thirdMaxIndex = findMaxIndex(thirdList);
+// let firstMaxIndex = findMaxIndex(firstList);
+// let secondMaxIndex = findMaxIndex(secondList);
+// let thirdMaxIndex = findMaxIndex(thirdList);
 
 // Step 2: Swap the first element of each list with the corresponding maximum value
-[firstList[0], firstList[firstMaxIndex]] = [firstList[firstMaxIndex], firstList[0]];
-[secondList[1], secondList[secondMaxIndex]] = [secondList[secondMaxIndex], secondList[1]];
-[thirdList[2], thirdList[thirdMaxIndex]] = [thirdList[thirdMaxIndex], thirdList[2]];
+// [firstList[0], firstList[firstMaxIndex]] = [firstList[firstMaxIndex], firstList[0]];
+// [secondList[1], secondList[secondMaxIndex]] = [secondList[secondMaxIndex], secondList[1]];
+// [thirdList[2], thirdList[thirdMaxIndex]] = [thirdList[thirdMaxIndex], thirdList[2]];
 
 // Put the three lists back into one list
-randomNumbers = firstList.concat(secondList, thirdList);
+// randomNumbers = firstList.concat(secondList, thirdList);
 
 // console.log(randomNumbers); // The sorted set of random numbers
 
 // Use the random numbers to create the random color List
-const colorList = [];
+let colorList = [];
 // Create three random colors
-for (let i = 0; i < 3; i++) {
+for (let i = 0; i < 4; i++) {
   const r = randomNumbers[i * 3];       // Take the first number, then the fourth, and so on
   const g = randomNumbers[i * 3 + 1];   // Take the second number, then the fifth, and so on
   const b = randomNumbers[i * 3 + 2];   // Take the third number, then the sixth, and so on
@@ -100,16 +114,87 @@ for (let i = 0; i < 3; i++) {
   colorList.push({ r, g, b });
 }
 
+// Check to see if any of the colors are within 90% similarity
+// If they are, generate a new color
+// Function to check if any colors in the list are similar and regenerate if necessary
+// Function to calculate the similarity between two colors
+function calculateColorSimilarity(color1, color2) {
+  // Calculate the color difference percentage using the function you provided
+  const differencePercentage = calculateColorDifferencePercentage(color1, color2);
+
+  // Check if the difference percentage is within 90% similarity
+  return differencePercentage >= 80;
+}
+
+// Function to check if any colors in the list are similar and regenerate if necessary
+function checkAndRegenerateColors(colorList) {
+  let regenerate = false;
+  let numRegens = 0;
+
+  for (let i = 0; i < colorList.length - 1; i++) {
+    for (let j = i + 1; j < colorList.length; j++) {
+      if (calculateColorSimilarity(colorList[i], colorList[j])) {
+        // If two colors are similar, regenerate the j-th color
+        // Generate 3 random numbers with a new seed
+        let moreRandomNumbers = generateRandomNumbers((seed*2), 12);
+
+        // multiply each value in the array by 244
+        for (let i = 0; i < moreRandomNumbers.length; i++) {
+          moreRandomNumbers[i] = Math.floor(moreRandomNumbers[i] * 244);
+        }
+
+        colorList[j] = { r: moreRandomNumbers[0], g: moreRandomNumbers[1], b: moreRandomNumbers[2] };
+
+        // Set the flag to indicate that colors need to be regenerated
+        regenerate = true;
+        numRegens += 1;
+      }
+    }
+  }
+
+  // If any colors were regenerated, loop and recheck
+  while (regenerate) {
+    regenerate = false;
+    for (let i = 0; i < colorList.length - 1; i++) {
+      for (let j = i + 1; j < colorList.length; j++) {
+        if (calculateColorSimilarity(colorList[i], colorList[j])) {
+          // If two colors are similar, regenerate the j-th color
+          // Generate 3 random numbers with a new seed
+          let moreRandomNumbers = generateRandomNumbers((seed*(numRegens+1)), 12);
+  
+          // multiply each value in the array by 244
+          for (let i = 0; i < moreRandomNumbers.length; i++) {
+            moreRandomNumbers[i] = Math.floor(moreRandomNumbers[i] * 244);
+          }
+  
+          colorList[j] = { r: moreRandomNumbers[0], g: moreRandomNumbers[1], b: moreRandomNumbers[2] };
+  
+          // Set the flag to indicate that colors need to be regenerated
+          regenerate = true;
+          numRegens += 1;
+        }
+      }
+    }
+  }
+
+  console.log(`Num of color regenerations: ${numRegens}`)
+}
+
+// Call the function to check and regenerate colors if needed
+checkAndRegenerateColors(colorList);
+
+
+
 let finalColorList = [] // This list is what will be used to create the target color;
 // Get 5 more random numbers. These five numbers will determine which colors are used
 let randomNumbersForFinal = generateRandomNumbers((seed*2), 5);
 
 for (let i = 0; i < randomNumbersForFinal.length; i++) {
-  finalColorList.push(colorList[(Math.floor(randomNumbersForFinal[i]*3))])
+  finalColorList.push(colorList[(Math.floor(randomNumbersForFinal[i]*4))])
   // Uncomment these lines to show the correct answer in the console
-  // const colorForLog = `rgb(${finalColorList[i].r}, ${finalColorList[i].g}, ${finalColorList[i].b})`
-  // const logStyle = "background-color: " + colorForLog + "; padding: 5px;";
-  // console.log("%c" + "rgb(" + finalColorList[i].r + ", " + finalColorList[i].g + ", " + finalColorList[i].b + ")", logStyle);
+  const colorForLog = `rgb(${finalColorList[i].r}, ${finalColorList[i].g}, ${finalColorList[i].b})`
+  const logStyle = "background-color: " + colorForLog + "; padding: 5px;";
+  console.log("%c" + "rgb(" + finalColorList[i].r + ", " + finalColorList[i].g + ", " + finalColorList[i].b + ")", logStyle);
 }
 
 //console.log(finalColorList);
@@ -123,6 +208,7 @@ root.style.setProperty("--target-color", targetColorString);
 root.style.setProperty("--color1", `rgb(${colorList[0].r}, ${colorList[0].g}, ${colorList[0].b})`);
 root.style.setProperty("--color2", `rgb(${colorList[1].r}, ${colorList[1].g}, ${colorList[1].b})`);
 root.style.setProperty("--color3", `rgb(${colorList[2].r}, ${colorList[2].g}, ${colorList[2].b})`);
+root.style.setProperty("--color4", `rgb(${colorList[3].r}, ${colorList[3].g}, ${colorList[3].b})`);
 
 
 // Set the favicon to be the target color
@@ -311,21 +397,7 @@ function convertColorToDictionary(color) {
       };
     }
     return null;
-}
-
-function calculateColorDifferencePercentage(rgb1, rgb2) {
-    const distance = Math.sqrt(
-      Math.pow(rgb2.r - rgb1.r, 2) +
-      Math.pow(rgb2.g - rgb1.g, 2) +
-      Math.pow(rgb2.b - rgb1.b, 2)
-    );
-  
-    const maxDistance = Math.sqrt(195075); // Maximum Euclidean distance between two RGB values (255^2 + 255^2 + 255^2)
-  
-    const percentageDifference = (distance / maxDistance) * 100;
-  
-    return (100-percentageDifference).toFixed(0);
-  }  
+} 
 
 function selectColor(element) {
     if (gameOver) {

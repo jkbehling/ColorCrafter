@@ -8,6 +8,7 @@
     --color1: red;
     --color2: green;
     --color3: blue;
+    --color4: yellow;
 
     /* Color Cube Sizes */
     --cube-width: 150px;
@@ -201,6 +202,9 @@ body {
 }
 #given-color3 {
     background-color: var(--color3);
+}
+#given-color4 {
+    background-color: var(--color4);
 }
 
 .too-many {
