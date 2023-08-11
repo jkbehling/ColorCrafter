@@ -64,11 +64,13 @@
         <!-- Modal content -->
         <div class="modal-content">
             <div class="modal-close-container"><span class="close">&times;</span></div>
-            <p>Dark Mode</p>
-            <label class="switch">
-                <input type="checkbox" checked>
-                <span class="slider round" onclick="toggleDarkMode()"></span>
-            </label>
+            <div class="modal-body">
+                <p>Dark Mode</p>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider round" onclick="toggleDarkMode()"></span>
+                </label>
+            </div>
         </div>
     </div>
 
@@ -76,9 +78,11 @@
     <div id="myModal3" class="modal">
         <!-- Modal content -->
         <div class="modal-content">
-            <span class="close">&times;</span>
-            <p>Welcome back!</p>
-            <button onclick="continueGame()" class="continue-btn"><span>Continue</span></button>
+            <div class="modal-close-container"><span class="close">&times;</span></div>
+            <div class="modal-body">
+                <p>Welcome back!</p>
+                <button onclick="continueGame()" class="continue-btn"><span>Continue</span></button>
+            </div>
         </div>
     </div>
 

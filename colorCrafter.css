@@ -308,6 +308,13 @@ body {
     text-align: right;
 }
 
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 /* The Close Button */
 .close {
     color: #aaaaaa;

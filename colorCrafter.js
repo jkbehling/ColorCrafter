@@ -18,16 +18,16 @@ let startTime = Date.now();
 let endTime = Date.now(); // This will change when the game ends
 
 // Get the full date and make it an int that will be used to create a random color.
-// const currentDate = new Date();
-// const day = String(currentDate.getDate()).padStart(2, '0');
-// const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-// const year = currentDate.getFullYear();
-// // Format the date as "ddMMYYYY"
-// const seed = parseInt(`1${day}${month}${year}`);
-// //console.log("Seed:" + seed);
+const currentDate = new Date();
+const day = String(currentDate.getDate()).padStart(2, '0');
+const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+const year = currentDate.getFullYear();
+// Format the date as "ddMMYYYY"
+const seed = parseInt(`1${day}${month}${year}`);
+//console.log("Seed:" + seed);
 
 
-let seed = 104082023;
+// let seed = 104082023;
 
 // Create a list of 9 random numbers (between 0 and 255) to create the colors
 
