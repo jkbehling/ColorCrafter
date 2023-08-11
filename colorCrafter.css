@@ -20,11 +20,11 @@
     --cube-border-radius: 20px;
 
     /* Selected Color Sizes */
-    --selected-color-width: 50px;
-    --selected-color-width-mobile: 30px;
-    --selected-color-height: 50px;
-    --selected-color-height-mobile: 30px;
-    --selected-color-border-radius: 20px;
+    --selected-color-width: 35px;
+    --selected-color-width-mobile: 25px;
+    --selected-color-height: 35px;
+    --selected-color-height-mobile: 25px;
+    --selected-color-border-radius: 10px;
 
     --transition-time: 0.5s;
 }
@@ -171,6 +171,7 @@ body {
 
 .given-color {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
@@ -292,10 +293,6 @@ body {
 
 /* Modal Content */
 .modal-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
     background-color: var(--body-background);
     color: var(--text-color);
     margin: auto;
@@ -303,6 +300,12 @@ body {
     border: 1px solid #888;
     width: 80%;
     font-size: 25px;
+    overflow: auto;
+    max-height: 80vh;
+}
+
+.modal-close-container {
+    text-align: right;
 }
 
 /* The Close Button */
@@ -404,6 +407,29 @@ input:checked+.slider:before {
     padding: 3px;
     border-radius: 5px;
     opacity: 0;
+}
+
+#share-button {
+    background-color: var(--body-background);
+    color: var(--text-color);
+    fill: var(--text-color);
+    width: 50%;
+    height: 50%;
+    border-radius: var(--selected-color-border-radius);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    padding: 10px;
+}
+#share-button .share-text {
+    font-weight: bold;
+}
+#share-button svg {
+    height: 30px;
+}
+#share-button .copied-to-clipboard {
+    font-size: 14px;
 }
 
 @media screen and (max-width: 870px) {

@@ -9,21 +9,25 @@ const history3 = document.getElementById("history3");
 const history4 = document.getElementById("history4");
 const history5 = document.getElementById("history5");
 let guessNum = 1;
+let numGuessesAllowed = 5;
 let gameOver = false;
 let youWin = false;
 let darkMode = true;
+let percentagesList = [];
+let startTime = Date.now();
+let endTime = Date.now(); // This will change when the game ends
 
 // Get the full date and make it an int that will be used to create a random color.
-const currentDate = new Date();
-const day = String(currentDate.getDate()).padStart(2, '0');
-const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-const year = currentDate.getFullYear();
-// Format the date as "ddMMYYYY"
-const seed = parseInt(`1${day}${month}${year}`);
+// const currentDate = new Date();
+// const day = String(currentDate.getDate()).padStart(2, '0');
+// const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+// const year = currentDate.getFullYear();
+// // Format the date as "ddMMYYYY"
+// const seed = parseInt(`1${day}${month}${year}`);
 // //console.log("Seed:" + seed);
 
 
-//let seed = 119082023;
+let seed = 104082023;
 
 // Create a list of 9 random numbers (between 0 and 255) to create the colors
 
@@ -48,7 +52,7 @@ function generateRandomNumbers(seed, count) {
 }
 
 // Generate 9 random numbers with the seed
-let randomNumbers = generateRandomNumbers(seed, 12);
+let randomNumbers = generateRandomNumbers(seed, 9);
 
 // multiply each value in the array by 244
 for (let i = 0; i < randomNumbers.length; i++) {
@@ -106,7 +110,7 @@ function calculateColorDifferencePercentage(rgb1, rgb2) {
 // Use the random numbers to create the random color List
 let colorList = [];
 // Create three random colors
-for (let i = 0; i < 4; i++) {
+for (let i = 0; i < 3; i++) {
   const r = randomNumbers[i * 3];       // Take the first number, then the fourth, and so on
   const g = randomNumbers[i * 3 + 1];   // Take the second number, then the fifth, and so on
   const b = randomNumbers[i * 3 + 2];   // Take the third number, then the sixth, and so on
@@ -136,7 +140,7 @@ function checkAndRegenerateColors(colorList) {
       if (calculateColorSimilarity(colorList[i], colorList[j])) {
         // If two colors are similar, regenerate the j-th color
         // Generate 3 random numbers with a new seed
-        let moreRandomNumbers = generateRandomNumbers((seed*2), 12);
+        let moreRandomNumbers = generateRandomNumbers((seed*2), 3);
 
         // multiply each value in the array by 244
         for (let i = 0; i < moreRandomNumbers.length; i++) {
@@ -160,7 +164,7 @@ function checkAndRegenerateColors(colorList) {
         if (calculateColorSimilarity(colorList[i], colorList[j])) {
           // If two colors are similar, regenerate the j-th color
           // Generate 3 random numbers with a new seed
-          let moreRandomNumbers = generateRandomNumbers((seed*(numRegens+1)), 12);
+          let moreRandomNumbers = generateRandomNumbers((seed*(numRegens+1)), 3);
   
           // multiply each value in the array by 244
           for (let i = 0; i < moreRandomNumbers.length; i++) {
@@ -177,7 +181,7 @@ function checkAndRegenerateColors(colorList) {
     }
   }
 
-  console.log(`Num of color regenerations: ${numRegens}`)
+  // console.log(`Num of color regenerations: ${numRegens}`)
 }
 
 // Call the function to check and regenerate colors if needed
@@ -187,14 +191,14 @@ checkAndRegenerateColors(colorList);
 
 let finalColorList = [] // This list is what will be used to create the target color;
 // Get 5 more random numbers. These five numbers will determine which colors are used
-let randomNumbersForFinal = generateRandomNumbers((seed*2), 5);
+let randomNumbersForFinal = generateRandomNumbers((seed*2), 6);
 
 for (let i = 0; i < randomNumbersForFinal.length; i++) {
-  finalColorList.push(colorList[(Math.floor(randomNumbersForFinal[i]*4))])
+  finalColorList.push(colorList[(Math.floor(randomNumbersForFinal[i]*3))])
   // Uncomment these lines to show the correct answer in the console
-  const colorForLog = `rgb(${finalColorList[i].r}, ${finalColorList[i].g}, ${finalColorList[i].b})`
-  const logStyle = "background-color: " + colorForLog + "; padding: 5px;";
-  console.log("%c" + "rgb(" + finalColorList[i].r + ", " + finalColorList[i].g + ", " + finalColorList[i].b + ")", logStyle);
+  // const colorForLog = `rgb(${finalColorList[i].r}, ${finalColorList[i].g}, ${finalColorList[i].b})`
+  // const logStyle = "background-color: " + colorForLog + "; padding: 5px;";
+  // console.log("%c" + "rgb(" + finalColorList[i].r + ", " + finalColorList[i].g + ", " + finalColorList[i].b + ")", logStyle);
 }
 
 //console.log(finalColorList);
@@ -208,7 +212,7 @@ root.style.setProperty("--target-color", targetColorString);
 root.style.setProperty("--color1", `rgb(${colorList[0].r}, ${colorList[0].g}, ${colorList[0].b})`);
 root.style.setProperty("--color2", `rgb(${colorList[1].r}, ${colorList[1].g}, ${colorList[1].b})`);
 root.style.setProperty("--color3", `rgb(${colorList[2].r}, ${colorList[2].g}, ${colorList[2].b})`);
-root.style.setProperty("--color4", `rgb(${colorList[3].r}, ${colorList[3].g}, ${colorList[3].b})`);
+// root.style.setProperty("--color4", `rgb(${colorList[3].r}, ${colorList[3].g}, ${colorList[3].b})`);
 
 
 // Set the favicon to be the target color
@@ -274,8 +278,8 @@ function youWinFunction() {
   let winSpan = $('<span class="you-win">You Win!</span>');
   $(middleContainer).html(winSpan);
   winSpan.animate({ opacity: 1 }, 500);
-  $("#given-colors").css("pointer-events", "none");
   startCountdown(getTimeUntilMidnightInSeconds());
+  showShareButton();
 }
 
 function gameOverFunction() {
@@ -283,7 +287,6 @@ function gameOverFunction() {
   gameOverText = $('<div class="game-over">Game Over</div>')
   $(middleContainer).css({"flex-direction": "column", "height": "fit-content", "opacity": "0"});
   $(middleContainer).html(gameOverText);
-  $("#given-colors").css("pointer-events", "none");
   let correctAnswer = '<div class="correct-answer-text"><span>Correct Answer:</span></div><div class="history-item" style="opacity: 1">'
   for (let i = 0; i < finalColorList.length; i++) {
     correctAnswer += `<div class="selected-color" style="background-color: rgb(${finalColorList[i].r},${finalColorList[i].g},${finalColorList[i].b});"></div>`
@@ -293,6 +296,62 @@ function gameOverFunction() {
   $(middleContainer).append(correctAnswerElement);
   $(middleContainer).animate({opacity: 1}, 500);
   startCountdown(getTimeUntilMidnightInSeconds());
+  showShareButton();
+}
+
+// function formatTime(seconds) {
+//   const minutes = Math.floor(seconds / 60);
+//   const remainingSeconds = seconds % 60;
+  
+//   return `${minutes} minutes and ${remainingSeconds} seconds`;
+// }
+
+function showShareButton() {
+  // Remove the onclick attributes from the given colors
+  $("#given-colors").children().each(function() {
+    $(this).removeAttr("onclick");
+  });
+
+  const givenColor2 = $("#given-color2");
+  const shareButton = $("<div id='share-button'></div>");
+  const shareText = $(`
+  <span class="share-text">Share</span>
+  <svg xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 0 384 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M280 64h40c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128C0 92.7 28.7 64 64 64h40 9.6C121 27.5 153.3 0 192 0s71 27.5 78.4 64H280zM64 112c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320c8.8 0 16-7.2 16-16V128c0-8.8-7.2-16-16-16H304v24c0 13.3-10.7 24-24 24H192 104c-13.3 0-24-10.7-24-24V112H64zm128-8a24 24 0 1 0 0-48 24 24 0 1 0 0 48z"/></svg>
+  `);
+  shareButton.html(shareText);
+  givenColor2.html(shareButton);
+  givenColor2.click(function() {
+    // Get the result (num of guesses)
+    let result = "";
+    if (guessNum == 1) {
+      result = `${guessNum}/${numGuessesAllowed} 👑`;
+    }
+    else if (gameOver) {
+      result = "Fail 🤡";
+    }
+    else {
+      result = `${guessNum}/${numGuessesAllowed}`;
+    }
+
+    // Get the time elapsed
+    let timeElapsed = formatTime((endTime - startTime) / 1000);
+    let clipboardText = `Color Crafter: ${result}\nTime: ${timeElapsed}\nPercentages: `;
+    for (let i = 0; i < percentagesList.length; i++) {
+      clipboardText += percentagesList[i]
+      if (i != percentagesList.length - 1) {
+        clipboardText += ", ";
+      }
+    }
+
+    navigator.clipboard.writeText(clipboardText);
+    resultsCopiedText = $('<span class="copied-to-clipboard">Copied!<span>')
+    shareButton.html(resultsCopiedText);
+    resultsCopiedText.animate({opacity: 1}, 500)
+    .delay(1000)
+    .animate({opacity: 0}, 500, function() {
+      shareButton.html(shareText);
+    });
+  })
 }
 
 function mixSelectedColors() {
@@ -317,36 +376,50 @@ function mixSelectedColors() {
     let colorResult = mixColors(selectedColorsList);
 
     let colorPercentageDifference = calculateColorDifferencePercentage(targetColor, colorResult)
+    // Add this to the percentage list
+    percentagesList.push(colorPercentageDifference + "%");
 
     let craftedColor = `rgb(${colorResult.r}, ${colorResult.g}, ${colorResult.b})`
-    // Grab the middle box. This will become the Crafted Color Box
+    // Grab the left middle box. This will become the Crafted Color Box
     let craftedColorBox = document.getElementById("selected-color3");
-    // Make the middle selected color grow first (this growth happens while the other colors merge into it)
-    // Make the middle color turn into the color that the user crafted
-    //$(craftedColorBox).css({'background-color': craftedColor, width: '65px', height: '65px'});
+    // Make the left middle selected color grow first (this growth happens while the other colors merge into it)
+    // Make the left middle color turn into the color that the user crafted
     $(craftedColorBox).css({'background-color': craftedColor, padding: '10px'});
+    // Calculate the slide distance for the middle boxes
+    // Get the screen width
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    // Set the default slide distance
+    let xSlideDistance = '8.5%';
+
+    // Check if the screen width matches any breakpoint and update the slide distance if applicable
+    if (screenWidth <= 412) {
+      xSlideDistance = '7%';
+    }
+    else if (screenHeight <= 1200) {
+      xSlideDistance = '7%';
+    }
     // Animate the other colors so they overlap on top of the middle color and fade away
     $("#selected-color1").animate({left: '43%', opacity: 0}, 500);
     $("#selected-color2").animate({left: '22%', opacity: 0}, 500);
-    $("#selected-color4").animate({right: '22%', opacity: 0}, 500);
-    $("#selected-color5").animate({right: '43%', opacity: 0}, 500, function() {
+    $("#selected-color3").animate({left: xSlideDistance}, 500);
+    $("#selected-color4").animate({right: xSlideDistance, opacity: 0}, 500);
+    $("#selected-color5").animate({right: '22%', opacity: 0}, 500);
+    $("#selected-color6").animate({right: '43%', opacity: 0}, 500, function() {
         // Now make the middle color rise up into the target color to see how similar they are
-        // Get the screen width
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
 
         // Set the default slide distance
-        let slideDistance = '145px';
+        let ySlideDistance = '145px';
 
         // Check if the screen width matches any breakpoint and update the slide distance if applicable
         if (screenWidth <= 412) {
-          slideDistance = '120px';
+          ySlideDistance = '120px';
         }
         else if (screenHeight <= 1200) {
-          slideDistance = '120px';
+          ySlideDistance = '120px';
         }
 
-        $(craftedColorBox).animate({bottom: slideDistance}, 1000, function() {
+        $(craftedColorBox).animate({bottom: ySlideDistance}, 1000, function() {
             // Add the similarity percentage to the crafted color
             let similarityPercentage = $('<span class="percent-span">'+colorPercentageDifference+'%</span>');
             $(craftedColorBox).append(similarityPercentage);
@@ -358,28 +431,35 @@ function mixSelectedColors() {
               let resultArrow = $('<div class="result-arrow"><svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg></div>');
               $(historyItem).append(resultArrow);
               $(historyItem).append(craftedColorBoxCopy);
-              $(craftedColorBoxCopy).css("opacity", "1"); // Set the opacity back to 1 on the craftedColorBoxCopy
+              $(craftedColorBoxCopy).css({"opacity": "1", "left": "0"}); // Set the opacity back to 1 on the craftedColorBoxCopy
               $(historyItem).animate({ opacity: 1 }, 500);
               selectedColorsContainer.innerHTML = ""; // Clear out the selected colors
   
               //Check to see if the user wins
               if (colorResult.r==targetColor.r & colorResult.g==targetColor.g & colorResult.b==targetColor.b) {
                 youWinFunction();
+                confetti({
+                  particleCount: 100,   // Number of confetti particles
+                  spread: 70,           // Spread of particles
+                  origin: { y: 0.6 },   // Starting point (top of the element)
+                });
+                endTime = Date.now();
                 setGameState();
                 return;
               }
           
+              // Check to see if it's game over
+              if (guessNum == numGuessesAllowed) {
+                  gameOverFunction();
+                  endTime = Date.now();
+                  setGameState();
+                  return;
+              }
+
               // Increment the guess number
               guessNum += 1;
               // Use cookies to preserve the game state if the user refreshes
               setGameState();
-          
-              // Check to see if it's game over
-              if (guessNum == 6) {
-                  gameOverFunction();
-                  setGameState();
-                  return;
-              }
             })
         });
     });
@@ -405,9 +485,9 @@ function selectColor(element) {
     }
     $(element).animate({"box-shadow": "0, 0, 0"}, 500);
     let selectedColorsCount = document.getElementById("selected-colors").childElementCount;
-    if (selectedColorsCount >= 5) {
+    if (selectedColorsCount >= 6) {
       if (element.childElementCount == 0) {
-        tooMany = $('<span class="too-many">You can only select 5 colors<span>');
+        tooMany = $('<span class="too-many">You can only select 6 colors<span>');
         $(element).append(tooMany);
         $(tooMany).animate({opacity: 1}, 500)
         .delay(1000)
@@ -417,7 +497,7 @@ function selectColor(element) {
       }
       return;
     }
-    if (selectedColorsCount == 4) {
+    if (selectedColorsCount == 5) {
         mixSelectedColorsElement.style.opacity = 100;
         $(mixSelectedColorsElement).css({ "opacity": "100", "pointer-events": "all"})
     }
@@ -534,21 +614,23 @@ function setGameState() {
     in_progress: inProgress,
     dark_mode: darkMode,
     guess_num: guessNum,
+    start_time: startTime,
+    end_time: endTime,
     history: [],
   };
 
   let historyItems = $(historyContainer).children();
   for (let i = 0; i < historyItems.length; i++) {
-    if (historyItems[i].childElementCount == 7) {
+    if (historyItems[i].childElementCount == 8) {
       let historyJson = {};
       let resultJson = {};
 
       for (let y = 0; y < historyItems[i].childElementCount; y++) {
-        if (y <= 4) {
+        if (y <= 5) {
           let historyElement = historyItems[i].children[y];
           historyJson["choice" + (y + 1)] = window.getComputedStyle(historyElement).backgroundColor;
         }
-        if (y == 6) {
+        if (y == 7) {
           let resultElement = historyItems[i].children[y];
           resultJson["resultColor"] = window.getComputedStyle(resultElement).backgroundColor;
           let resultText = resultElement.children[0];
@@ -591,7 +673,7 @@ if (gameDataCookie) {
 
     if (historyItem) {
       // Set background colors based on history data
-      for (let j = 1; j <= 5; j++) {
+      for (let j = 1; j <= 6; j++) {
         const choiceKey = "choice" + j;
         const choiceColor = historyItem.history[choiceKey];
         historyHtml += `<div class="selected-color" style="background-color: ${choiceColor};"></div>`;
@@ -607,7 +689,19 @@ if (gameDataCookie) {
 
       // Add the historyDiv to the historyContainer element
       $("#history"+i).css({"opacity": "1"}).html(historyHtml);
+
+      // Append the current percent to the percentages list
+      percentagesList.push(resultPercent);
     }
+  }
+
+  // Check to see if there was a start time
+  if (gameData.start_time) {
+    startTime = new Date(gameData.start_time);
+  }
+  // Check to see if there was an end time
+  if (gameData.end_time) {
+    endTime = new Date(gameData.end_time);
   }
 
   // Check to see if the user won
