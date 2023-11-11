@@ -19,6 +19,18 @@ let endTime = Date.now(); // This will change when the game ends
 
 // Get the full date and make it an int that will be used to create a random color.
 const currentDate = new Date();
+
+let specialEnding = false
+// Set a boolean for a special ending if the day is 11/12/2023
+// console.log(`${currentDate.getFullYear()}/${currentDate.getMonth()}/${currentDate.getDate()}`)
+if (
+  currentDate.getFullYear() === 2023 &&
+  currentDate.getMonth() === 10 && // Months are zero-based, so 10 represents November
+  currentDate.getDate() === 12
+) {
+  specialEnding = true;
+}
+
 const day = String(currentDate.getDate()).padStart(2, '0');
 const month = String(currentDate.getMonth() + 1).padStart(2, '0');
 const year = currentDate.getFullYear();
@@ -196,9 +208,9 @@ let randomNumbersForFinal = generateRandomNumbers((seed*2), 6);
 for (let i = 0; i < randomNumbersForFinal.length; i++) {
   finalColorList.push(colorList[(Math.floor(randomNumbersForFinal[i]*3))])
   // Uncomment these lines to show the correct answer in the console
-  // const colorForLog = `rgb(${finalColorList[i].r}, ${finalColorList[i].g}, ${finalColorList[i].b})`
-  // const logStyle = "background-color: " + colorForLog + "; padding: 5px;";
-  // console.log("%c" + "rgb(" + finalColorList[i].r + ", " + finalColorList[i].g + ", " + finalColorList[i].b + ")", logStyle);
+  const colorForLog = `rgb(${finalColorList[i].r}, ${finalColorList[i].g}, ${finalColorList[i].b})`
+  const logStyle = "background-color: " + colorForLog + "; padding: 5px;";
+  console.log("%c" + "rgb(" + finalColorList[i].r + ", " + finalColorList[i].g + ", " + finalColorList[i].b + ")", logStyle);
 }
 
 //console.log(finalColorList);
@@ -275,7 +287,13 @@ function startCountdown(seconds) {
 // Function to call when the user wins
 function youWinFunction() {
   youWin = true;
-  let winSpan = $('<span class="you-win">You Win!</span>');
+  let winSpan = null
+  if (specialEnding) {
+    winSpan = $('<button class="you-win" onclick="showSpecialEndingModal()">Click Here for Clue</button>')
+  }
+  else {
+    winSpan = $('<span class="you-win">You Win!</span>');
+  }
   $(middleContainer).html(winSpan);
   winSpan.animate({ opacity: 1 }, 500);
   startCountdown(getTimeUntilMidnightInSeconds());
@@ -796,6 +814,15 @@ window.onclick = function(event) {
 function continueGame() {
   var modal3 = document.getElementById("myModal3");
   modal3.style.display = "none";
+}
+
+
+function showSpecialEndingModal() {
+  $("#specialEndingModal").show();
+}
+
+function hideSpecialEndingModal() {
+  $("#specialEndingModal").hide();
 }
 
   
