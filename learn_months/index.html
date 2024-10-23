@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Months Quiz</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
+    <style>
+        body {
+            color: white;
+            background-color: #181a1b;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            min-height: 70vh;
+        }
+        button {
+            color: white;
+            background-color: #3b8fb9;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        input {
+            color: white;
+            background-color: #3f4142;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;        
+        }
+        h1, h2, h3, h4, h5, h6 {
+            margin: 0;
+        }
+        #question {
+            display: none;
+        }
+        #answer {
+            display: none;
+        }
+        #play-again {
+            display: none;
+        }
+        #reset-quiz {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 id="title">Months Quiz</h1>
+    <h2 id="timer"></h2>
+    <h1 id="question"></h1>
+    <input type="text" id="answer" placeholder="Enter month number here" />
+    <button id="start-quiz" onclick="startQuiz()">Start Quiz (Press Enter)</button>
+    <button id="reset-quiz" onclick="resetQuiz()">Reset (Press r)</button>
+    <script>
+        let months = [
+            ["January", 1],
+            ["February", 2],
+            ["March", 3],
+            ["April", 4],
+            ["May", 5],
+            ["June", 6],
+            ["July", 7],
+            ["August", 8],
+            ["September", 9],
+            ["October", 10],
+            ["November", 11],
+            ["December", 12],
+        ];
+        let gameStarted = false;
+        let currentQuestion = 0;
+        let score = 0;
+        let secondsElapsed = 0;
+        let timerInterval = null;
+
+        function startQuiz() {
+            gameStarted = true;
+            currentQuestion = 0;
+            score = 0;
+            months = months.sort(() => Math.random() - 0.5);
+            document.querySelector("#start-quiz").style.display = "none";
+            document.querySelector("#title").style.display = "none";
+            document.querySelector("#question").style.display = "block";
+            document.querySelector("#answer").value = "";
+            document.querySelector("#answer").style.display = "block";
+            document.querySelector("#reset-quiz").style.display = "block";
+            document.querySelector("#question").innerText = getQuestionText();
+            document.querySelector("#answer").focus();
+            startTimer();
+        }
+
+        function startTimer() {
+            document.querySelector("#timer").innerText = "Time: 0 seconds";
+            secondsElapsed = 0;
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                document.querySelector("#timer").innerText = `Time: ${secondsElapsed} seconds`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function resetQuiz() {
+            stopTimer();
+            document.querySelector("#question").style.display = "none";
+            document.querySelector("#answer").style.display = "none";
+            document.querySelector("#reset-quiz").style.display = "none";
+            document.querySelector("#timer").innerText = "";
+            document.querySelector("#title").style.display = "block";
+            document.querySelector("#start-quiz").style.display = "block";
+            gameStarted = false;
+        }
+
+        function getQuestionText() {
+            return `What is the month number for ${months[currentQuestion][0]}?`;
+        }
+
+        function getResultsText() {
+            if (score === months.length && secondsElapsed < 18) {
+                return `⚡🧠 You got ${score} out of ${months.length} correct! 🧠⚡`;
+            }
+            else if (score === months.length) {
+                return `🐢 You got ${score} out of ${months.length} correct. 🐢`;
+            }
+            else {
+                return `🤡 You got ${score} out of ${months.length} correct... 🤡`;
+            }
+        }
+
+        document.querySelector("body").addEventListener("keyup", function (e) {
+            if (e.key === "Enter" && !gameStarted) {
+                document.querySelector("#start-quiz").click();
+            }
+            else if (e.key === "Enter" && gameStarted) {
+                const answer = document.querySelector("#answer").value;
+                if (parseInt(answer) === months[currentQuestion][1]) {
+                    score++;
+                }
+                currentQuestion++;
+                if (currentQuestion < months.length) {
+                    document.querySelector("#question").innerText = getQuestionText();
+                    document.querySelector("#answer").value = "";
+                } else {
+                    document.querySelector("#question").innerText = getResultsText();
+                    document.querySelector("#answer").style.display = "none";
+                    gameStarted = false;
+                    stopTimer();
+                }
+            }
+            else if (e.key === "r" && gameStarted) {
+                document.querySelector("#reset-quiz").click();
+            }
+        });
+    </script>
+</body>
+
+</html>
