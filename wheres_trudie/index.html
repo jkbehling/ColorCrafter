@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where's Trudie</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            min-height: 100vh;
+            background-color: rgb(212, 101, 119);
+            color: white;
+        }
+        button {
+            color: rgb(56, 56, 56);
+            background-color: #9de0ec;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: solid 3px white;
+        }
+        .game-message {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            text-align: center;
+        }
+        .image-card {
+            position: relative;
+            padding: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .image-card .big-img {
+            width: 100%;
+        }
+        .image-cover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .mini-trudie {
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+        .fade-in {
+            opacity: 0;
+            transition: opacity 0.5s;
+            animation: fadeIn 0.5s forwards;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body
+    x-data="{
+        gameStart: false,
+        zoomReset: true,
+        gameWon: false,
+        images: [
+            ['./images/1.jpg', [47, 5, 10]], // img path, [x%, y%, wpx]
+            ['./images/2.jpg', [65, 64, 10]],
+            ['./images/3.jpg', [36, 19, 10]],
+            ['./images/4.jpg', [22, 24, 10]],
+            ['./images/5.jpg', [92, 31, 10]],
+            ['./images/6.jpg', [51, 44, 10]],
+            ['./images/7.jpg', [92, 41, 10]],
+            ['./images/8.jpg', [29, 36, 6]],
+            ['./images/9.jpg', [71, 62, 4]],
+            ['./images/10.jpg', [61, 54, 3]],
+            ['./images/11.jpg', [19, 45, 3]],
+            ['./images/12.jpg', [29, 39, 3]],
+            ['./images/13.jpg', [53, 25, 2]],
+            ['./images/14.jpg', [44, 65, 2]],
+            ['./images/15.jpg', [39, 75, 2]],
+        ],
+        imageIndex: 0,
+        nextImage() {
+            if (this.imageIndex >= this.images.length -2) {
+                this.gameStart = false;
+                this.gameWon = true;
+                return;
+            }
+            this.zoomReset = false;
+            this.imageIndex++;
+        },
+        setBtnPosition() {
+            return `
+                left: ${this.images[this.imageIndex][1][0]}%;
+                top: ${this.images[this.imageIndex][1][1]}%;
+                width: ${this.images[this.imageIndex][1][2]}px;
+            `;
+        }
+    }"
+>
+    <div class="game-message" x-show="!gameStart && !gameWon">
+        <h1>Where's Trudie?</h1>
+        <p>
+            Good morning my one and only valentine!
+            I've used my vast coding knowledge to make you this exciting surprise 😘.
+            I chose some fun little pictures of you, but you can only see them all
+            if you find and click on your teeny-tiny face within each one (hint: you'll need to zoom in 👀).
+        </p>
+        <button x-on:click="gameStart = true">❤️Click to Begin!❤️</button>
+    </div>
+    <div class="game-message" x-show="gameStart && !zoomReset">
+        <p>Zoom out before moving on pwease 😚</p>
+        <button x-on:click="zoomReset = true">I'm Zoomed Out</button>
+    </div>
+    <div class="image-card" x-show="gameStart && zoomReset">
+        <img x-bind:src="images[imageIndex][0]" class="big-img" alt="Where's Trudie">
+        <img
+            src="./images/mini.png"
+            class="mini-trudie"
+            x-on:click="nextImage"
+            x-bind:style="setBtnPosition"
+        >
+    </div>
+    <div class="game-message" x-show="gameWon">
+        <h2>🎉 You Win! 🎉</h2>
+        <p>
+            We've had many adventures together, haven't we?
+            I look forward to many more 🙂
+
+            I love you, Trudie!
+            - From John
+        </p>
+    </div>
+</body>
+</html>
